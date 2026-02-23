@@ -1,17 +1,18 @@
-name: Issue Commenter
+name: Issue Comment Bot
 
 on:
   issues:
     types: [labeled]
 
 jobs:
-  auto-comment:
+  comment-on-bug:
+    if: github.event.label.name == 'bug'
     runs-on: ubuntu-latest
-    if: github.event.label.name == 'bug' || github.event.label.name == 'wontfix'
+    permissions:
+      issues: write
     steps:
-      - name: Bug comment
-        if: github.event.label.name == 'bug'
-        uses: actions/github-script@v6
+      - name: Add bug comment
+        uses: actions/github-script@v7
         with:
           script: |
             github.rest.issues.createComment({
@@ -20,9 +21,15 @@ jobs:
               repo: context.repo.repo,
               body: 'Thank you for reporting this bug. Our team will investigate and fix it.'
             })
-      - name: Wontfix comment
-        if: github.event.label.name == 'wontfix'
-        uses: actions/github-script@v6
+
+  comment-on-wontfix:
+    if: github.event.label.name == 'wontfix'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Add wontfix comment
+        uses: actions/github-script@v7
         with:
           script: |
             github.rest.issues.createComment({
