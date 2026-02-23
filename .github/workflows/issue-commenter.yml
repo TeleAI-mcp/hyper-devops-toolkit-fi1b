@@ -1,0 +1,33 @@
+name: Issue Commenter
+
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  auto-comment:
+    runs-on: ubuntu-latest
+    if: github.event.label.name == 'bug' || github.event.label.name == 'wontfix'
+    steps:
+      - name: Bug comment
+        if: github.event.label.name == 'bug'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: 'Thank you for reporting this bug. Our team will investigate and fix it.'
+            })
+      - name: Wontfix comment
+        if: github.event.label.name == 'wontfix'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: 'After review, we have decided not to address this issue at this time.'
+            })
